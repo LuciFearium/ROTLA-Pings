@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Discord Ping Generator</title>
+  <title>ROTLA Raid Pings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       min-height: 100vh;
       background: #1a1d23;
-      font-family: 'Courier New', monospace;
+      font-family: 'Google Sans', sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -25,7 +26,7 @@
       border: 1px solid #2e3440;
     }
     .header {
-      background: linear-gradient(135deg, #5865f2 0%, #4752c4 100%);
+      background: linear-gradient(135deg, #715846 0%, #5a4538 100%);
       padding: 20px 24px 0;
     }
     .header-title {
@@ -53,7 +54,7 @@
       background: transparent;
       color: rgba(255,255,255,0.7);
     }
-    .tab-btn.active { background: #23272f; color: #5865f2; }
+    .tab-btn.active { background: #23272f; color: #715846; }
     .body { padding: 20px 24px 24px; }
     .label {
       color: #9ca3af;
@@ -95,9 +96,9 @@
     }
     .member-label.excluded {
       background: rgba(88,101,242,0.12);
-      border-color: #5865f2;
+      border-color: #715846;
     }
-    .member-label input[type=checkbox] { accent-color: #5865f2; width: 16px; height: 16px; }
+    .member-label input[type=checkbox] { accent-color: #715846; width: 16px; height: 16px; }
     .member-name { color: #e5e7eb; font-weight: 600; flex: 1; }
     .member-id { color: #6b7280; font-size: 11px; }
     textarea.output {
@@ -107,7 +108,7 @@
       border-radius: 8px;
       padding: 12px 14px;
       margin-bottom: 12px;
-      color: #a5b4fc;
+      color: #c9a882;
       font-size: 13px;
       line-height: 1.6;
       font-family: inherit;
@@ -118,7 +119,7 @@
     .copy-btn {
       width: 100%;
       padding: 12px;
-      background: #5865f2;
+      background: #715846;
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -145,7 +146,7 @@
       min-width: 120px;
     }
     .add-btn {
-      background: #5865f2;
+      background: #715846;
       color: #fff;
       border: none;
       border-radius: 7px;
@@ -183,13 +184,13 @@
     .hidden { display: none; }
     .io-row { display: flex; gap: 8px; margin-top: 12px; }
     .export-btn, .import-btn { flex: 1; padding: 8px; background: #2a2d35; border: 1px solid #3d4454; color: #9ca3af; border-radius: 7px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; letter-spacing: 1px; transition: all 0.15s; }
-    .export-btn:hover, .import-btn:hover { border-color: #5865f2; color: #a5b4fc; }
+    .export-btn:hover, .import-btn:hover { border-color: #715846; color: #c9a882; }
     .inline-panel { background: #1a1d23; border: 1px solid #3d4454; border-radius: 10px; padding: 16px; margin-top: 12px; }
     .inline-panel-title { color: #e5e7eb; font-weight: 700; font-size: 13px; margin-bottom: 6px; letter-spacing: 1px; }
     .inline-panel-desc { color: #6b7280; font-size: 11px; margin-bottom: 10px; line-height: 1.5; }
-    .inline-panel textarea { width: 100%; background: #23272f; border: 1px solid #3d4454; border-radius: 7px; color: #a5b4fc; font-family: inherit; font-size: 11px; padding: 10px; outline: none; resize: vertical; min-height: 90px; box-sizing: border-box; }
+    .inline-panel textarea { width: 100%; background: #23272f; border: 1px solid #3d4454; border-radius: 7px; color: #c9a882; font-family: inherit; font-size: 11px; padding: 10px; outline: none; resize: vertical; min-height: 90px; box-sizing: border-box; }
     .panel-btns { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
-    .modal-confirm { background: #5865f2; color: #fff; border: none; border-radius: 7px; padding: 7px 14px; font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer; }
+    .modal-confirm { background: #715846; color: #fff; border: none; border-radius: 7px; padding: 7px 14px; font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer; }
     .modal-cancel { background: #4b5563; color: #fff; border: none; border-radius: 7px; padding: 7px 14px; font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer; }
     .modal-error { color: #f87171; font-size: 11px; margin-top: 6px; }
   </style>
@@ -197,7 +198,7 @@
 <body>
 <div class="card">
   <div class="header">
-    <div class="header-title">📣 Discord Ping Generator</div>
+    <div class="header-title">📣 ROTLA Raid Pings</div>
     <div class="tabs">
       <button class="tab-btn active" id="tab-ping" onclick="switchTab('ping')">🎯 Ping</button>
       <button class="tab-btn" id="tab-manage" onclick="switchTab('manage')">⚙️ Manage</button>
@@ -209,7 +210,7 @@
     <div id="pane-ping">
       <div id="ping-empty" class="empty hidden">
         <div class="empty-icon">👥</div>
-        <div>No members yet. Go to <strong style="color:#5865f2">Manage</strong> to add people.</div>
+        <div>No members yet. Go to <strong style="color:#715846">Manage</strong> to add people.</div>
       </div>
       <div id="ping-content" class="hidden">
         <div class="row-header">
@@ -412,7 +413,7 @@
       const list = document.getElementById('member-list');
       list.innerHTML = members.map(m => `
         <label class="member-label ${checked[m.id] ? 'excluded' : ''}" onclick="">
-          <input type="checkbox" ${checked[m.id] ? 'checked' : ''} onchange="handleCheck('${m.id}', this.checked)" style="accent-color:#5865f2;width:16px;height:16px" />
+          <input type="checkbox" ${checked[m.id] ? 'checked' : ''} onchange="handleCheck('${m.id}', this.checked)" style="accent-color:#715846;width:16px;height:16px" />
           <span class="member-name">${escHtml(m.name)}</span>
           <span class="member-id">@${escHtml(m.discordId)}</span>
         </label>
