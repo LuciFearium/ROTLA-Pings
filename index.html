@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discord Ping Generator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: #1a1d23;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: #23272f;
+      border-radius: 12px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      overflow: hidden;
+      border: 1px solid #2e3440;
+    }
+    .header {
+      background: linear-gradient(135deg, #5865f2 0%, #4752c4 100%);
+      padding: 20px 24px 0;
+    }
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    .tabs { display: flex; gap: 4px; }
+    .tab-btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 6px 6px 0 0;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.15s;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+    }
+    .tab-btn.active { background: #23272f; color: #5865f2; }
+    .body { padding: 20px 24px 24px; }
+    .label {
+      color: #9ca3af;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .empty { text-align: center; color: #6b7280; padding: 40px 0; }
+    .empty-icon { font-size: 36px; margin-bottom: 10px; }
+    .row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .small-btn {
+      background: none;
+      border: 1px solid #3d4454;
+      color: #9ca3af;
+      padding: 3px 10px;
+      border-radius: 5px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 1px;
+    }
+    .member-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .member-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #2a2d35;
+      border: 1px solid #2e3440;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .member-label.excluded {
+      background: rgba(88,101,242,0.12);
+      border-color: #5865f2;
+    }
+    .member-label input[type=checkbox] { accent-color: #5865f2; width: 16px; height: 16px; }
+    .member-name { color: #e5e7eb; font-weight: 600; flex: 1; }
+    .member-id { color: #6b7280; font-size: 11px; }
+    textarea.output {
+      width: 100%;
+      background: #1a1d23;
+      border: 1px solid #2e3440;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      color: #a5b4fc;
+      font-size: 13px;
+      line-height: 1.6;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+    }
+    textarea.output::placeholder { color: #4b5563; }
+    .copy-btn {
+      width: 100%;
+      padding: 12px;
+      background: #5865f2;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: background 0.2s;
+    }
+    .copy-btn:disabled { background: #2e3440; color: #6b7280; cursor: not-allowed; }
+    .copy-btn.success { background: #22c55e; }
+    .add-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    input.text-input {
+      background: #1a1d23;
+      border: 1px solid #3d4454;
+      border-radius: 7px;
+      color: #e5e7eb;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 8px 10px;
+      outline: none;
+      flex: 1;
+      min-width: 120px;
+    }
+    .add-btn {
+      background: #5865f2;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 14px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .error { color: #f87171; font-size: 12px; margin-bottom: 12px; }
+    .manage-list { display: flex; flex-direction: column; gap: 6px; }
+    .manage-item {
+      background: #2a2d35;
+      border: 1px solid #2e3440;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .manage-item-row { display: flex; align-items: center; gap: 10px; }
+    .icon-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 4px; }
+    .edit-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .save-btn { background: #22c55e; color: #fff; border: none; border-radius: 7px; padding: 8px 14px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+    .cancel-btn { background: #4b5563; color: #fff; border: none; border-radius: 7px; padding: 8px 14px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+    .tip {
+      margin-top: 16px;
+      padding: 10px 12px;
+      background: #1a1d23;
+      border-radius: 8px;
+      border: 1px solid #2e3440;
+      color: #6b7280;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .tip strong { color: #9ca3af; }
+    .hidden { display: none; }
+    .io-row { display: flex; gap: 8px; margin-top: 12px; }
+    .export-btn, .import-btn { flex: 1; padding: 8px; background: #2a2d35; border: 1px solid #3d4454; color: #9ca3af; border-radius: 7px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; letter-spacing: 1px; transition: all 0.15s; }
+    .export-btn:hover, .import-btn:hover { border-color: #5865f2; color: #a5b4fc; }
+    .inline-panel { background: #1a1d23; border: 1px solid #3d4454; border-radius: 10px; padding: 16px; margin-top: 12px; }
+    .inline-panel-title { color: #e5e7eb; font-weight: 700; font-size: 13px; margin-bottom: 6px; letter-spacing: 1px; }
+    .inline-panel-desc { color: #6b7280; font-size: 11px; margin-bottom: 10px; line-height: 1.5; }
+    .inline-panel textarea { width: 100%; background: #23272f; border: 1px solid #3d4454; border-radius: 7px; color: #a5b4fc; font-family: inherit; font-size: 11px; padding: 10px; outline: none; resize: vertical; min-height: 90px; box-sizing: border-box; }
+    .panel-btns { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+    .modal-confirm { background: #5865f2; color: #fff; border: none; border-radius: 7px; padding: 7px 14px; font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer; }
+    .modal-cancel { background: #4b5563; color: #fff; border: none; border-radius: 7px; padding: 7px 14px; font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer; }
+    .modal-error { color: #f87171; font-size: 11px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="header-title">📣 Discord Ping Generator</div>
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-ping" onclick="switchTab('ping')">🎯 Ping</button>
+      <button class="tab-btn" id="tab-manage" onclick="switchTab('manage')">⚙️ Manage</button>
+    </div>
+  </div>
+  <div class="body">
+
+    <!-- PING TAB -->
+    <div id="pane-ping">
+      <div id="ping-empty" class="empty hidden">
+        <div class="empty-icon">👥</div>
+        <div>No members yet. Go to <strong style="color:#5865f2">Manage</strong> to add people.</div>
+      </div>
+      <div id="ping-content" class="hidden">
+        <div class="row-header">
+          <span class="label" style="margin:0">Select members to EXCLUDE from ping</span>
+          <button class="small-btn" onclick="handleSelectAll()">Select All</button>
+        </div>
+        <div class="member-list" id="member-list"></div>
+        <textarea class="output" id="output-box" rows="3" readonly placeholder="Check off members above to exclude them from the ping..."></textarea>
+        <button class="copy-btn" id="copy-btn" onclick="handleCopy()" disabled>📋 Copy</button>
+      </div>
+    </div>
+
+    <!-- MANAGE TAB -->
+    <div id="pane-manage" class="hidden">
+      <div class="label">Add Member</div>
+      <div class="add-row">
+        <input class="text-input" id="new-name" placeholder="Display name" onkeydown="if(event.key==='Enter') handleAdd()" />
+        <input class="text-input" id="new-id" placeholder="Discord user ID (numbers)" onkeydown="if(event.key==='Enter') handleAdd()" />
+        <button class="add-btn" onclick="handleAdd()">+ Add</button>
+      </div>
+      <div class="error hidden" id="error-msg"></div>
+      <div class="label" id="members-count" style="margin-top:16px">Members (0)</div>
+      <div id="manage-empty" class="hidden" style="color:#6b7280;font-size:13px;text-align:center;padding:20px 0">No members added yet.</div>
+      <div class="manage-list" id="manage-list"></div>
+      <div class="tip">
+        💡 <strong>Finding your Discord User ID:</strong> Enable Developer Mode in Discord Settings → Advanced, then right-click any user and select <em>Copy User ID</em>.
+      </div>
+      <div class="io-row">
+        <button class="export-btn" onclick="handleExport()">📤 Export JSON</button>
+        <button class="import-btn" onclick="handleImportOpen()">📥 Import JSON</button>
+      </div>
+
+      <!-- Export Panel -->
+      <div class="inline-panel hidden" id="export-panel">
+        <div class="inline-panel-title">📤 Export Member List</div>
+        <div class="inline-panel-desc">Copy the JSON below and save it. Paste it into Import on any device to restore the list.</div>
+        <textarea id="export-text" readonly onclick="this.select()"></textarea>
+        <div class="panel-btns">
+          <button class="modal-cancel" onclick="closePanels()">Close</button>
+          <button class="modal-confirm" id="copy-export-btn" onclick="copyExport()">📋 Copy</button>
+        </div>
+      </div>
+
+      <!-- Import Panel -->
+      <div class="inline-panel hidden" id="import-panel">
+        <div class="inline-panel-title">📥 Import Member List</div>
+        <div class="inline-panel-desc">Paste exported JSON below. This will <strong style="color:#f87171">replace</strong> your current member list.</div>
+        <textarea id="import-text" placeholder='[{"name":"Alice","discordId":"123456789"}]'></textarea>
+        <div class="modal-error hidden" id="import-error"></div>
+        <div class="panel-btns">
+          <button class="modal-cancel" onclick="closePanels()">Cancel</button>
+          <button class="modal-confirm" onclick="confirmImport()">Import</button>
+        </div>
+      </div>
+
+    </div>
+
+<script>
+  const STORAGE_KEY = 'discord-ping-members';
+  let members = [];
+  let checked = {};
+  let editingId = null;
+
+  // Load from localStorage
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) members = JSON.parse(saved);
+  } catch(e) {}
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+  }
+
+  function generateId() {
+    return Math.random().toString(36).slice(2, 9);
+  }
+
+  function switchTab(tab) {
+    document.getElementById('pane-ping').classList.toggle('hidden', tab !== 'ping');
+    document.getElementById('pane-manage').classList.toggle('hidden', tab !== 'manage');
+    document.getElementById('tab-ping').classList.toggle('active', tab === 'ping');
+    document.getElementById('tab-manage').classList.toggle('active', tab === 'manage');
+    clearError();
+    editingId = null;
+    closePanels();
+    render();
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = '⚠ ' + msg;
+    el.classList.remove('hidden');
+  }
+
+  function clearError() {
+    document.getElementById('error-msg').classList.add('hidden');
+  }
+
+  function handleAdd() {
+    clearError();
+    const name = document.getElementById('new-name').value.trim();
+    const id = document.getElementById('new-id').value.trim();
+    if (!name) { showError('Display name is required.'); return; }
+    if (!id) { showError('Discord user ID is required.'); return; }
+    if (!/^\d+$/.test(id)) { showError('Discord user ID must be numeric.'); return; }
+    members.push({ id: generateId(), name, discordId: id });
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-id').value = '';
+    save();
+    render();
+  }
+
+  function handleDelete(id) {
+    members = members.filter(m => m.id !== id);
+    delete checked[id];
+    save();
+    render();
+  }
+
+  function startEdit(id) {
+    editingId = id;
+    render();
+  }
+
+  function saveEdit(id) {
+    clearError();
+    const nameEl = document.getElementById('edit-name-' + id);
+    const idEl = document.getElementById('edit-id-' + id);
+    const name = nameEl.value.trim();
+    const discordId = idEl.value.trim();
+    if (!name) { showError('Display name is required.'); return; }
+    if (!discordId) { showError('Discord user ID is required.'); return; }
+    if (!/^\d+$/.test(discordId)) { showError('Discord user ID must be numeric.'); return; }
+    members = members.map(m => m.id === id ? { ...m, name, discordId } : m);
+    editingId = null;
+    save();
+    render();
+  }
+
+  function handleSelectAll() {
+    const allChecked = members.every(m => checked[m.id]);
+    if (allChecked) {
+      checked = {};
+    } else {
+      members.forEach(m => checked[m.id] = true);
+    }
+    render();
+  }
+
+  function handleCheck(id, val) {
+    checked[id] = val;
+    render();
+  }
+
+  function handleCopy() {
+    const ta = document.getElementById('output-box');
+    ta.select();
+    document.execCommand('copy');
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('success');
+    setTimeout(() => {
+      btn.classList.remove('success');
+      updateCopyBtn();
+    }, 2000);
+  }
+
+  function getPingOutput() {
+    return members.filter(m => !checked[m.id]).map(m => `<@${m.discordId}>`).join(' ');
+  }
+
+  function updateCopyBtn() {
+    const unpinged = members.filter(m => !checked[m.id]).length;
+    const btn = document.getElementById('copy-btn');
+    const out = document.getElementById('output-box');
+    if (unpinged > 0) {
+      btn.disabled = false;
+      btn.textContent = `📋 Copy (${unpinged} to ping)`;
+      out.value = getPingOutput();
+    } else {
+      btn.disabled = true;
+      btn.textContent = '📋 Copy';
+      out.value = '';
+    }
+  }
+
+  function render() {
+    // Ping tab
+    const empty = document.getElementById('ping-empty');
+    const content = document.getElementById('ping-content');
+    if (members.length === 0) {
+      empty.classList.remove('hidden');
+      content.classList.add('hidden');
+    } else {
+      empty.classList.add('hidden');
+      content.classList.remove('hidden');
+      // Member list
+      const allChecked = members.length > 0 && members.every(m => checked[m.id]);
+      document.querySelector('#ping-content .small-btn').textContent = allChecked ? 'Deselect All' : 'Select All';
+      const list = document.getElementById('member-list');
+      list.innerHTML = members.map(m => `
+        <label class="member-label ${checked[m.id] ? 'excluded' : ''}" onclick="">
+          <input type="checkbox" ${checked[m.id] ? 'checked' : ''} onchange="handleCheck('${m.id}', this.checked)" style="accent-color:#5865f2;width:16px;height:16px" />
+          <span class="member-name">${escHtml(m.name)}</span>
+          <span class="member-id">@${escHtml(m.discordId)}</span>
+        </label>
+      `).join('');
+      updateCopyBtn();
+    }
+
+    // Manage tab
+    document.getElementById('members-count').textContent = `Members (${members.length})`;
+    const manageEmpty = document.getElementById('manage-empty');
+    const manageList = document.getElementById('manage-list');
+    if (members.length === 0) {
+      manageEmpty.classList.remove('hidden');
+      manageList.innerHTML = '';
+    } else {
+      manageEmpty.classList.add('hidden');
+      manageList.innerHTML = members.map(m => {
+        if (editingId === m.id) {
+          return `
+            <div class="manage-item">
+              <div class="edit-row">
+                <input class="text-input" id="edit-name-${m.id}" value="${escHtml(m.name)}" style="flex:1" />
+                <input class="text-input" id="edit-id-${m.id}" value="${escHtml(m.discordId)}" style="flex:1" />
+                <button class="save-btn" onclick="saveEdit('${m.id}')">Save</button>
+                <button class="cancel-btn" onclick="editingId=null;render()">Cancel</button>
+              </div>
+            </div>`;
+        }
+        return `
+          <div class="manage-item">
+            <div class="manage-item-row">
+              <span class="member-name">${escHtml(m.name)}</span>
+              <span class="member-id">${escHtml(m.discordId)}</span>
+              <button class="icon-btn" onclick="startEdit('${m.id}')" title="Edit">✏️</button>
+              <button class="icon-btn" onclick="handleDelete('${m.id}')" title="Delete">🗑</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function closePanels() {
+    document.getElementById('export-panel').classList.add('hidden');
+    document.getElementById('import-panel').classList.add('hidden');
+    document.getElementById('import-error').classList.add('hidden');
+    document.getElementById('import-text').value = '';
+  }
+
+  function handleExport() {
+    closePanels();
+    const exportData = members.map(({ name, discordId }) => ({ name, discordId }));
+    document.getElementById('export-text').value = JSON.stringify(exportData, null, 2);
+    document.getElementById('export-panel').classList.remove('hidden');
+  }
+
+  function copyExport() {
+    const ta = document.getElementById('export-text');
+    ta.select();
+    document.execCommand('copy');
+    const btn = document.getElementById('copy-export-btn');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+  }
+
+  function handleImportOpen() {
+    closePanels();
+    document.getElementById('import-panel').classList.remove('hidden');
+  }
+
+  function confirmImport() {
+    const raw = document.getElementById('import-text').value.trim();
+    const errEl = document.getElementById('import-error');
+    errEl.classList.add('hidden');
+    let parsed;
+    try { parsed = JSON.parse(raw); } catch(e) {
+      errEl.textContent = '⚠ Invalid JSON — check the format and try again.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    if (!Array.isArray(parsed)) {
+      errEl.textContent = '⚠ JSON must be an array of members.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    const valid = parsed.every(m => typeof m.name === 'string' && typeof m.discordId === 'string' && /^\d+$/.test(m.discordId));
+    if (!valid) {
+      errEl.textContent = '⚠ Each entry must have a "name" and a numeric "discordId".';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    members = parsed.map(m => ({ id: generateId(), name: m.name.trim(), discordId: m.discordId.trim() }));
+    checked = {};
+    save();
+    render();
+    closePanels();
+  }
+
+  render();
+</script>
+</body>
+</html>
