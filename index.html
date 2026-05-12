@@ -249,6 +249,7 @@
       <div class="io-row">
         <button class="export-btn" onclick="handleExport()">📤 Export JSON</button>
         <button class="import-btn" onclick="handleImportOpen()">📥 Import JSON</button>
+        <button class="export-btn" onclick="handleLoadDefault()">☁️ Load Default</button>
       </div>
 
       <!-- Export Panel -->
@@ -465,6 +466,36 @@
 
   function escHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function handleLoadDefault() {
+    const btn = document.querySelector('button[onclick="handleLoadDefault()"]');
+    btn.textContent = '⏳ Loading...';
+    btn.disabled = true;
+    fetch('members.json?nocache=' + Date.now())
+      .then(r => {
+        if (!r.ok) throw new Error('File not found');
+        return r.json();
+      })
+      .then(parsed => {
+        if (!Array.isArray(parsed)) throw new Error('Invalid format');
+        const valid = parsed.every(m => typeof m.name === 'string' && typeof m.discordId === 'string' && /^\d+$/.test(m.discordId));
+        if (!valid) throw new Error('Invalid member data');
+        members = parsed.map(m => ({ id: generateId(), name: m.name.trim(), discordId: m.discordId.trim() }));
+        checked = {};
+        save();
+        render();
+        btn.textContent = '✅ Loaded!';
+        setTimeout(() => { btn.textContent = '☁️ Load Default'; btn.disabled = false; }, 2000);
+      })
+      .catch(err => {
+        btn.textContent = '❌ Failed';
+        btn.disabled = false;
+        setTimeout(() => { btn.textContent = '☁️ Load Default'; }, 2000);
+        const errEl = document.getElementById('error-msg');
+        errEl.textContent = '⚠ Could not load members.json — make sure it exists in your repository.';
+        errEl.classList.remove('hidden');
+      });
   }
 
   function closePanels() {
