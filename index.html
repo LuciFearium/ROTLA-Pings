@@ -227,7 +227,10 @@
         </div>
         <div class="member-list" id="member-list"></div>
         <textarea class="output" id="output-box" rows="3" readonly placeholder="Check off members above to exclude them from the ping..."></textarea>
-        <button class="copy-btn" id="copy-btn" onclick="handleCopy()" disabled>📋 Copy</button>
+        <div style="display:flex;gap:8px;">
+          <button class="copy-btn" id="copy-btn" onclick="handleCopy()" disabled style="flex:1">📋 Copy</button>
+          <button class="copy-btn" id="send-btn" onclick="handleSend()" disabled style="flex:1">📨 Send to Discord</button>
+        </div>
       </div>
     </div>
 
@@ -246,6 +249,12 @@
       <div class="tip">
         💡 <strong>Finding your Discord User ID:</strong> Enable Developer Mode in Discord Settings → Advanced, then right-click any user and select <em>Copy User ID</em>.
       </div>
+      <div class="label" style="margin-top:16px">Webhook URL</div>
+      <div style="display:flex;gap:8px;">
+        <input class="text-input" id="webhook-input" type="password" placeholder="https://discord.com/api/webhooks/..." style="flex:1" />
+        <button class="add-btn" onclick="saveWebhook()">Save</button>
+      </div>
+      <div id="webhook-status" style="font-size:11px;margin-top:6px;color:#6b7280;"></div>
       <div class="io-row">
         <button class="export-btn" onclick="handleExport()">📤 Export JSON</button>
         <button class="import-btn" onclick="handleImportOpen()">📥 Import JSON</button>
@@ -279,14 +288,19 @@
 
 <script>
   const STORAGE_KEY = 'discord-ping-members';
+  const WEBHOOK_KEY = 'discord-ping-webhook';
   let members = [];
   let checked = {};
   let editingId = null;
+  let webhookUrl = '';
 
   // Load from localStorage
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) members = JSON.parse(saved);
+  } catch(e) {}
+  try {
+    webhookUrl = localStorage.getItem(WEBHOOK_KEY) || '';
   } catch(e) {}
 
   function save() {
@@ -404,6 +418,7 @@
       btn.textContent = '📋 Copy';
       out.value = '';
     }
+    updateSendBtn();
   }
 
   function render() {
@@ -428,6 +443,15 @@
         </label>
       `).join('');
       updateCopyBtn();
+    }
+
+    // Webhook input
+    const webhookInput = document.getElementById('webhook-input');
+    const webhookStatus = document.getElementById('webhook-status');
+    if (webhookInput) {
+      webhookInput.value = webhookUrl;
+      webhookStatus.textContent = webhookUrl ? '✅ Webhook is set.' : '';
+      webhookStatus.style.color = '#22c55e';
     }
 
     // Manage tab
@@ -496,6 +520,68 @@
         errEl.textContent = '⚠ Could not load members.json — make sure it exists in your repository.';
         errEl.classList.remove('hidden');
       });
+  }
+
+  function saveWebhook() {
+    const val = document.getElementById('webhook-input').value.trim();
+    const status = document.getElementById('webhook-status');
+    if (!val) {
+      webhookUrl = '';
+      localStorage.removeItem(WEBHOOK_KEY);
+      status.textContent = 'Webhook cleared.';
+      status.style.color = '#6b7280';
+    } else if (!val.startsWith('https://discord.com/api/webhooks/')) {
+      status.textContent = '⚠ That doesn\'t look like a Discord webhook URL.';
+      status.style.color = '#f87171';
+      return;
+    } else {
+      webhookUrl = val;
+      localStorage.setItem(WEBHOOK_KEY, val);
+      status.textContent = '✅ Webhook saved.';
+      status.style.color = '#22c55e';
+    }
+    updateSendBtn();
+    setTimeout(() => { status.textContent = webhookUrl ? '✅ Webhook is set.' : ''; }, 2000);
+  }
+
+  function updateSendBtn() {
+    const unpinged = members.filter(m => !checked[m.id]).length;
+    const btn = document.getElementById('send-btn');
+    if (!btn) return;
+    btn.disabled = unpinged === 0 || !webhookUrl;
+    btn.title = !webhookUrl ? 'Set a webhook URL in Manage first' : '';
+  }
+
+  function handleSend() {
+    const output = getPingOutput();
+    if (!output || !webhookUrl) return;
+    const btn = document.getElementById('send-btn');
+    btn.textContent = '⏳ Sending...';
+    btn.disabled = true;
+    fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: output })
+    })
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      btn.textContent = '✅ Sent!';
+      btn.style.background = '#22c55e';
+      setTimeout(() => {
+        btn.textContent = '📨 Send to Discord';
+        btn.style.background = '';
+        updateSendBtn();
+      }, 2000);
+    })
+    .catch(() => {
+      btn.textContent = '❌ Failed';
+      btn.style.background = '#ef4444';
+      setTimeout(() => {
+        btn.textContent = '📨 Send to Discord';
+        btn.style.background = '';
+        updateSendBtn();
+      }, 2000);
+    });
   }
 
   function closePanels() {
