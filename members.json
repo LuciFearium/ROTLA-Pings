@@ -1,8 +1,14 @@
 [
+  
   {
-    "name": "Warshock",
-    "discordId": "199327862208069632"
+    "name": "Accursed",
+    "discordId": "977664651066220585"
   },
+  {
+    "name": "Poison",
+    "discordId": "193214840242831360"
+  },
+  
   {
     "name": "Jackie",
     "discordId": "191750276586143744"
@@ -16,40 +22,25 @@
     "discordId": "237008135368212480"
   },
   {
-    "name": "Vac",
-    "discordId": "168765613668433920"
-  },
-  {
-    "name": "Erosis",
-    "discordId": "154767337843589120"
-  },
-  {
     "name": "Icing",
     "discordId": "233273038257389569"
+  },
+  {
+    "name": "Ves",
+    "discordId": "200722817640169472"
+  },
+  
+  {
+    "name": "Vac",
+    "discordId": "168765613668433920"
   },
   {
     "name": "Deadbeard",
     "discordId": "777749862074417182"
   },
   {
-    "name": "Ely",
-    "discordId": "1000973580227580026"
-  },
-  {
-    "name": "Kib",
-    "discordId": "1146667736446009345"
-  },
-  {
     "name": "Lind",
     "discordId": "273597053618094091"
-  },
-  {
-    "name": "Accursed",
-    "discordId": "977664651066220585"
-  },
-  {
-    "name": "Aribella",
-    "discordId": "238150416448094209"
   },
   {
     "name": "Riko",
@@ -60,10 +51,6 @@
     "discordId": "276173070560002058"
   },
   {
-    "name": "Docbush",
-    "discordId": "470960213030207499"
-  },
-  {
     "name": "Fraga",
     "discordId": "424401558512599040"
   },
@@ -72,23 +59,41 @@
     "discordId": "252475623879081984"
   },
   {
-    "name": "Lethal",
-    "discordId": "562118177249558539"
-  },
-  {
-    "name": "Poison",
-    "discordId": "193214840242831360"
-  },
-  {
     "name": "Scrit",
     "discordId": "478995514684080128"
   },
+  
   {
-    "name": "Ves",
-    "discordId": "200722817640169472"
+    "name": "Warshock",
+    "discordId": "199327862208069632"
+  },
+  {
+    "name": "Erosis",
+    "discordId": "154767337843589120"
+  },
+  {
+    "name": "Ely",
+    "discordId": "1000973580227580026"
+  },
+  {
+    "name": "Kib",
+    "discordId": "1146667736446009345"
+  },
+  {
+    "name": "Aribella",
+    "discordId": "238150416448094209"
+  },
+  {
+    "name": "Docbush",
+    "discordId": "470960213030207499"
+  },
+  {
+    "name": "Lethal",
+    "discordId": "562118177249558539"
   },
   {
     "name": "Gal/Sere",
     "discordId": "403280990514053130"
   }
+  
 ]
